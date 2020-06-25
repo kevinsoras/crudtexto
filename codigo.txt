@@ -1,0 +1,145 @@
+html----------------------------
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<div class="container" >
+  <div class="row">
+    <div class="col-md-8 mt-4">
+      <ul class="list-group">
+        <li *ngFor="let juego of listajuegos"
+        class="list-group-item list-group-item-action"
+        (click)="editar(juego)"
+        [class.activate]="juego.nombre===nombre1"
+        >
+      {{juego.id}}-
+      {{juego.nombrejuego}}- {{juego.nombre}}  -  {{juego.puntaje}}
+       
+       
+        </li>
+      </ul>
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="card-title">
+            Agregar Juego
+          </div>
+          <div class="form-group"> 
+            <input type="text" [(ngModel)]="nombrejuego1"  placeholder="Nombre de juego" class="form-control">
+          </div>
+          <div class="form-group"> 
+            <input type="text" [(ngModel)]="nombre1"  placeholder="Nombre del jugador" class="form-control">
+          </div>
+          <div class="form-group"> 
+            <input type="text" [(ngModel)]="puntaje1"  placeholder="Puntaje del juego" class="form-control">
+          </div>
+          <button (click)="agregaroeditar()" class="btn btn-primary">
+            Enviar
+          </button>
+          <button  *ngIf="idjugador!==0"
+          class="btn btn-danger"
+          (click)="delete()">
+          Eliminar
+           
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<router-outlet></router-outlet>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+
+
+----juego.ts-------------------------------------------------------
+export interface juego{
+    idjuego?:number;
+    nombrejuego?: string;
+    nombre?: string;
+    puntaje?:number ;
+}
+export class Juegodatos implements juego{
+
+    idjuego?:number;
+    nombrejuego?: string;
+    nombre?: string;
+    puntaje?:number ;
+    constructor( ){
+
+
+    }
+   
+
+}
+
+--------------juego.service.ts------------------------------------------
+import { Injectable } from '@angular/core';
+import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http'
+import {juego} from './juego'
+
+@Injectable({
+  providedIn: 'root'
+})
+export class JuegoService {
+
+  constructor(
+
+    private http:HttpClient
+
+
+  ) { }
+
+    listarjuego(){
+      const path= 'http://10.147.19.229:5000/plays';
+      return this.http.get<juego[]>(path);
+    }
+    crearjuego(juego:juego){
+      const path= 'http://10.147.19.229:5000/plays';
+      return this.http.post(path,juego);
+    }
+    editarjuego(juego:juego){
+      const path= 'http://10.147.19.229:5000/plays'+'/'+juego.idjuego;
+      return this.http.put(path,juego);
+    }
+    eliminarjuego(idjuego:number){
+      const options = {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+        body: {
+          id: idjuego,
+          
+        },
+      };
+
+
+
+      const path= 'http://10.147.19.229:5000/plays/'+idjuego;
+      return this.http.delete(path);
+    }
+}
+----------------------------------------app.module.ts------------------------------------------
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    AppRoutingModule,
+    NgbModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
